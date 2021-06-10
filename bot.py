@@ -1,9 +1,12 @@
 import discord
 import random
 import time
+import sys
+from datetime import datetime
+from dateutil import tz, parser
 from discord.ext import commands
 
-TOKEN = # private!
+#TOKEN = private!
 
 bot = commands.Bot(command_prefix='.gb ', help_command=None)
 
@@ -12,12 +15,114 @@ async def on_ready():
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name =".gb help"))
 	print('bot startup successful')
 
+@bot.event
+async def on_command_error(ctx, error):
+	if isinstance(error, commands.CommandNotFound):
+		await ctx.send('I dont understand that command. Try ".gb help"')
+
 @bot.command()
 async def help(ctx):
-	await ctx.send("• My name is gabebot. I am a WIP Raspi discord.py bot")
-	await ctx.send('• You can talk to me by using .gb')
-	await ctx.send("• I understand: help, hello, decide, react, coinflip, joke ")
-	await ctx.send("• decide ex: .gb decide choice1 choice2 etc")
+	await ctx.send("• My name is gabebot. I am a discord.py bot running on a Raspberry Pi\n• You can talk to me by using .gb\n• I understand: help, hello, decide, react, coinflip, joke, gamenight, quantity, back4blood, ironman\n• decide ex: .gb decide choice1 choice2 etc\n• ironman ex: .gb ironman player1 player2 etc")
+
+
+@bot.command()
+async def ironman(ctx, *args:str):
+
+	roster = ["<:zelda:823394228708179998>","<:younglink:823394228473430018>","<:yoshi:823394236874489856>","<:shiek:823394228779745300>","<:samus:823394228742127646>","<:roy:823394228721418290>","<:pikachu:823395069704011776>","<:pichu:823394228679868416>","<:peach1:823394228523499561>","<:jigglypuff:823394228339605575>","<:kirby:823394228692058112>","<:link1:823394228671217684>","<:luigi:823394228675018782>","<:mario:823394228779745301>","<:marth:823394228692189224>","<:mewtwo:823394228629012530>","<:mrgamewatch:823394234589642782>","<:ness:823394228692320356>","<:bowser:823394228331347988>","<:cfalcon:823394234463158313>","<:DK:823394228348387338>","<:dr:823394228427948052>","<:falco:823394228624556052>","<:fox1:823394228435943505>","<:ganondorf:823394228351795201>","<:iceclimbers:823394228667154432>"]
+	sent = []
+	hightier = ["<:fox1:823394228435943505>","<:marth:823394228692189224>","<:jigglypuff:823394228339605575>","<:falco:823394228624556052>","<:shiek:823394228779745300>","<:cfalcon:823394234463158313>","<:peach1:823394228523499561>"]
+	lowtier = ["<:DK:823394228348387338>", "<:link1:823394228671217684>", "<:younglink:823394228473430018>","<:mrgamewatch:823394234589642782>", "<:mewtwo:823394228629012530>", "<:roy:823394228721418290>","<:pichu:823394228679868416>", "<:ness:823394228692320356>", "<:zelda:823394228708179998>","<:kirby:823394228692058112>", "<:bowser:823394228331347988>"]
+	pokemon = ["<:jigglypuff:823394228339605575>", "<:pikachu:823395069704011776>", "<:mewtwo:823394228629012530>","<:pichu:823394228679868416>"]
+	midtier = ['<:yoshi:823394236874489856>', '<:samus:823394228742127646>', '<:pikachu:823395069704011776>', '<:luigi:823394228675018782>', '<:mario:823394228779745301>', '<:dr:823394228427948052>', '<:ganondorf:823394228351795201>', '<:iceclimbers:823394228667154432>']
+	args = list(args)
+
+	if len(args) == 0:
+		await ctx.send("Invalid user amount. Please enter 1 to 4 users \nExample: .gb ironman gabebot " + ctx.author.name )
+		return False
+
+	if args[0].strip("-").isnumeric():
+		if int(args[0]) < 1 or int(args[0]) > 26:
+			await ctx.send("Invalid character amount. For a custom character amount, please enter 1 to 26 characters \nExample: .gb ironman 12 gabebot " + ctx.author.name)
+			return False
+		roster = random.sample(roster, int(args[0]))
+		args.pop(0)
+	elif args[0].lower() == "hightier":
+		roster = random.sample(hightier, len(hightier))
+		args.pop(0)
+	elif args[0].lower() == "lowtier":
+		roster = random.sample(lowtier, len(lowtier))
+		args.pop(0)
+	elif args[0].lower() == "pokemon":
+		roster = random.sample(pokemon, len(pokemon))
+		args.pop(0)
+	elif args[0].lower() == "midtier":
+		roster = random.sample(midtier, len(midtier))
+		args.pop(0)
+	if len(args) > 4 or len(args) < 1:
+		await ctx.send("Invalid user amount. Please enter 1 to 4 users \nExample: .gb ironman gabebot " + ctx.author.name )
+		return False
+
+	for item in args:
+		i = 5
+		charlist = random.sample(roster, len(roster))
+		while i < len(roster) + 4:
+			charlist.insert(i,"\n")
+			i += 6
+		charlist = ", ".join(charlist)
+		charlist = charlist.replace(",", "")
+		await ctx.send(str(item) + ":\n " + charlist)
+		sent.append(item)
+		if len(sent) < len(args):
+			await ctx.send("_ _")
+
+@bot.command()
+async def back4blood(ctx):
+	now = datetime.now(tz=tz.tzlocal())
+	back4bloodrelease = parser.parse("October 17, 2021")
+	back4bloodrelease = back4bloodrelease.replace(tzinfo=tz.gettz("America/New_York"))
+	a = str(back4bloodrelease - now)
+	a = a.split()
+	del(a[1])
+	a = ":".join(a)
+	a = a.replace(":0",":")
+	a = a.split(":")
+	#a = [0,0,0,0] # <- tester!
+	def sp0(num, timetype):
+		if num == "":
+			timetype = ""
+			return timetype
+		elif  num == 1:
+	        	return str(num) + " " + str(timetype) + " "
+		else:
+			return str(num) + " " + str(timetype) + "s " 
+	timetypes = ["day", "hour", "minute"]
+	valuetimes = []
+	i = 0
+	for item in timetypes:
+	    result = sp0(int(a[i]), item)
+	    valuetimes.append(result)
+	    i += 1
+	result = sp0(float(a[i]), "second")
+	valuetimes.append(result)
+	valuetimes = "".join(valuetimes)
+	valuetimes = valuetimes.split()
+	i = 1
+	if len(valuetimes) > 4:
+		for item in a:
+			while i < len(valuetimes)-1:
+				valuetimes[i] = valuetimes[i] + ","
+				i += 2
+	if len(valuetimes) > 2:
+		valuetimes[len(valuetimes)-2] = "& " + valuetimes[len(valuetimes)-2]
+	valuetimes = " ".join(valuetimes)
+	if now >= back4bloodrelease or a == [0,0,0,0]:
+		await ctx.send("Back4Blood has released!")
+	else:
+		await ctx.send("Back4Blood will release in " + valuetimes)
+
+@bot.command()
+async def quantity(ctx):
+	await ctx.send("Approximately " + str(random.randint(0,sys.maxsize)))
 
 @bot.command()
 async def joke(ctx):
@@ -28,18 +133,19 @@ async def joke(ctx):
 async def coinflip(ctx):
 	await ctx.send("Choose heads or tails! I'll flip the coin in 5 seconds!")
 	time.sleep(5)
-	i = random.randint(0,1)
-	if i == 0:
-		await ctx.send("Heads!")
-	else:
-		await ctx.send("Tails!")
+	await ctx.send(random.choice(["Heads!","Tails!"]))
 
 @bot.command()
 async def react(ctx):
-	x = "<:weak:689242114222981314> <:thanos:689943431459373130> <:steve:796938741113552899> <:spongebob:796938708183023657> <:riptheskin:775596377069191189> <:pip:762911962149027850> <:pe:724040299231445173> <:mollywario:785966585395019816> <:keanu:788098382148534302> <:jackie:771903098171031582> <:isforme:765273143648321566> <:imstuff:762911984122593304> <:harry:774508889211142154> <:harambe:792554042278019083> <:grum2:788618238492934145> <:grum:788617183378800670> <:gordon:712544812565397534> <:gnomechild:774508922165133344> <:doinks:740970214413435000> <:doge:689577757545463829> <:deadcrewmate:762911919660204043> <:bubsy:788110947570155540> <:bonk:689242003485360150> <:bigtimetommie:768628473681412116> <:bigstu:764539472804053052> <:berniechad:765287160009457695> <:arnold:766865888124731453>"
+	x = "<:weak:689242114222981314> <:thanos:689943431459373130> <:steve:796938741113552899> <:spongebob:796938708183023657> <:riptheskin:775596377069191189> <:pip:762911962149027850> <:pe:724040299231445173> <:keanu:788098382148534302> <:jackie:771903098171031582> <:isforme:765273143648321566> <:imstuff:762911984122593304> <:harry:774508889211142154> <:harambe:792554042278019083> <:grum2:788618238492934145> <:grum:788617183378800670> <:gordon:712544812565397534> <:gnomechild:774508922165133344> <:doinks:740970214413435000> <:doge:689577757545463829> <:deadcrewmate:762911919660204043> <:bubsy:788110947570155540> <:bonk:689242003485360150> <:bigtimetommie:768628473681412116> <:bigstu:764539472804053052> <:berniechad:765287160009457695> <:arnold:766865888124731453>"
 	x = x.split(" ")
-	i = random.randint(0,len(x)-1)
-	await ctx.send(x[i])
+	await ctx.send(random.choice(x))
+
+@bot.command()
+async def testreact(ctx):
+#	emoji = random.choice(guild.emojis)
+	await ctx.send("test")
+
 
 @bot.command()
 async def hello(ctx):
@@ -47,7 +153,7 @@ async def hello(ctx):
 	if i > 0:
 		pass
 	else:
-		await ctx.send("Greetings")
+		await ctx.send(":)")
 		return
 
 	i = random.randint(0,10)
@@ -65,6 +171,17 @@ async def hello(ctx):
 async def decide(ctx,*args:str):
 	await ctx.send("I have decided: " + random.choice(args))
 
+@bot.command()
+async def gamenight(ctx):
+	await ctx.send("gamenight or else")
+	await ctx.send("gamenight or else")
+	await ctx.send("gamenight or else")
+
+@bot.command()
+async def JTerm(ctx):
+	x = ["<:DrHirosky:795139350550675496>, <:bigbrain:795140043639095327>"]
+	await ctx.send(random.choice(x))
+	await ctx.send("It's done. Congratulations boys!")
+	await ctx.send(random.choice(x))
 
 bot.run(TOKEN)
-
